@@ -10,8 +10,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "user")
-public class User extends Auditable {
+@Table(name = "Customer")
+public class Customer extends Auditable {
     @Getter @Setter
     @NotBlank
     private String name;
