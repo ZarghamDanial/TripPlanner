@@ -4,8 +4,10 @@ import com.TripPlanner.demo.model.City;
 import com.TripPlanner.demo.model.TopAttractions;
 import com.TripPlanner.demo.repository.CityRepository;
 import com.TripPlanner.demo.repository.TopAttractionsRepository;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,18 +29,49 @@ public class CustomerController {
         return cityRepository.findAll();
     }
 
+    @GetMapping("/testLatitude")
+    public Double getLatitude(String attractionName, String cityName) {
+        final String uri = "https://us1.locationiq.com/v1/search.php?key=c36f432fd64ba5&q="+attractionName+","+cityName+"&format=json";
+        RestTemplate restTemplate = new RestTemplate();
+        String result1 = restTemplate.getForObject(uri, String.class);
+        int latindex = result1.indexOf("lat");
+        Double lat = Double.valueOf(result1.substring(latindex+6, latindex+15));
+        return lat;
+    }
+
+    @GetMapping("/testLongitude")
+    public Double getLongitude(String attractionName, String cityName) {
+        final String uri = "https://us1.locationiq.com/v1/search.php?key=c36f432fd64ba5&q="+attractionName+","+cityName+"&format=json";
+        RestTemplate restTemplate = new RestTemplate();
+        String result1 = restTemplate.getForObject(uri, String.class);
+        int longindex = result1.indexOf("lon");
+        Double longi = Double.valueOf(result1.substring(longindex+6, longindex+15));
+        return longi;
+    }
+
+    @GetMapping("/testAttractionType")
+    public String getAttractionType(String attractionName, String cityName) {
+        final String uri = "https://us1.locationiq.com/v1/search.php?key=c36f432fd64ba5&q="+attractionName+","+cityName+"&format=json";
+        RestTemplate restTemplate = new RestTemplate();
+        String result1 = restTemplate.getForObject(uri, String.class);
+        String typ="";
+        int typeindex = result1.lastIndexOf("type");
+        for (int i = typeindex+7; result1.charAt(i) != '"'; i++) {
+            typ =typ + result1.charAt(i);
+        }
+       return typ;
+    }
+
     @GetMapping("/PlanIt")
     public List<TopAttractions> getShortestPath(List<TopAttractions> topAttractionsList) {
         TSP tsp = new TSP();
         Double[][] cityGraph=null;
-        //TopAttractions topAttractions1;
-        //TopAttractions topAttractions2;
         for(TopAttractions topAttractions1: topAttractionsList) {
             for(TopAttractions topAttractions2: topAttractionsList) {
-                Double latitude1 = topAttractions1.getLatitude();
-                Double longitude1 = topAttractions1.getLongitude();
-                Double latitude2 = topAttractions2.getLatitude();
-                Double longitude2 = topAttractions2.getLongitude();
+                Double latitude1 = getLatitude(topAttractions1.getName(), topAttractions1.getCity().getName());
+                Double longitude1 = getLongitude(topAttractions1.getName(), topAttractions1.getCity().getName());
+                Double latitude2 = getLatitude(topAttractions2.getName(), topAttractions2.getCity().getName());
+                Double longitude2 = getLongitude(topAttractions2.getName(), topAttractions2.getCity().getName());
 
                 Double crowFlyDistance=getCrowFlyDistance(latitude1, latitude2, longitude1, longitude2);
                 cityGraph[Math.toIntExact(topAttractions1.getId())][Math.toIntExact(topAttractions2.getId())]=crowFlyDistance;

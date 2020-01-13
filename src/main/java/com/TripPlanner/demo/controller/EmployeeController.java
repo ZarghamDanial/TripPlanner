@@ -28,6 +28,11 @@ public class EmployeeController {
         return cityRepository.findAll();
     }
 
+    @GetMapping("/attractions")
+    public List<TopAttractions> getAllTopAttractions() {
+        return topAttractionsRepository.findAll();
+    }
+
     @GetMapping("/TopAttractions")
     public List<TopAttractions> getAllTopAttraction(City city) {
         return city.getSpots();
@@ -39,9 +44,10 @@ public class EmployeeController {
     }
 
     @PostMapping("/AddTopAttraction")
-    public void addCity(@Valid @RequestBody TopAttractions topAttraction) {
+    public void addTopAttraction(@Valid @RequestBody TopAttractions topAttraction) {
         //City city=topAttraction.getCity();
         topAttractionsRepository.save(topAttraction);
+        System.out.println("gugru");
     }
 
     @PostMapping("/DeleteCity")
