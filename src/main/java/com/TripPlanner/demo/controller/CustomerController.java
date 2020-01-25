@@ -4,12 +4,12 @@ import com.TripPlanner.demo.model.City;
 import com.TripPlanner.demo.model.TopAttractions;
 import com.TripPlanner.demo.repository.CityRepository;
 import com.TripPlanner.demo.repository.TopAttractionsRepository;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.Valid;
 import java.util.List;
 
 import static com.TripPlanner.demo.controller.TSP.TSPUtil;
@@ -46,6 +46,7 @@ public class CustomerController {
         String result1 = restTemplate.getForObject(uri, String.class);
         int longindex = result1.indexOf("lon");
         Double longi = Double.valueOf(result1.substring(longindex+6, longindex+15));
+        //System.out.println(longi);
         return longi;
     }
 
@@ -63,9 +64,9 @@ public class CustomerController {
     }
 
     @GetMapping("/PlanIt")
-    public List<TopAttractions> getShortestPath(List<TopAttractions> topAttractionsList) {
+    public List<TopAttractions> getShortestPath(@RequestBody  List<TopAttractions> topAttractionsList) throws NullPointerException{
         TSP tsp = new TSP();
-        Double[][] cityGraph=null;
+        Double[][] cityGraph=new Double[10][10];
         for(TopAttractions topAttractions1: topAttractionsList) {
             for(TopAttractions topAttractions2: topAttractionsList) {
                 Double latitude1 = getLatitude(topAttractions1.getName(), topAttractions1.getCity().getName());
@@ -77,6 +78,7 @@ public class CustomerController {
                 cityGraph[Math.toIntExact(topAttractions1.getId())][Math.toIntExact(topAttractions2.getId())]=crowFlyDistance;
             }
         }
+        //System.out.println(TSPUtil(cityGraph, topAttractionsList.size()));
         return TSPUtil(cityGraph, topAttractionsList.size());
     }
 
@@ -101,7 +103,12 @@ public class CustomerController {
         return(c * r);
     }
 
-    @GetMapping("/TopAttractions")
+    @GetMapping("/cities/{cityId}/topAttractions")
+    public List<TopAttractions> getAllTopAttractionsByCityId(@PathVariable (value = "cityId") Long cityId) {
+        return topAttractionsRepository.findByCityId(cityId);
+    }
+
+    /*@GetMapping("/TopAttractions")
     public List<TopAttractions> getAllTopAttraction(City city) {
         return city.getSpots();
     }
@@ -109,5 +116,5 @@ public class CustomerController {
     @PostMapping("/AddCity")
     public City addCity(@Valid @RequestBody City city) {
         return cityRepository.save(city);
-    }
+    }*/
 }

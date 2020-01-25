@@ -1,6 +1,9 @@
 package com.TripPlanner.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
@@ -12,7 +15,10 @@ import javax.persistence.*;
 @JsonIgnoreProperties(value={"picURL"}, allowGetters= true)
 public class TopAttractions extends Auditable{
     @Getter @Setter
-    @ManyToOne()
+    @ManyToOne(cascade=CascadeType.ALL)
+    @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
+    @JoinColumn(name = "city_id", nullable = false)
+    @JsonProperty("city_id")
     private City city;
 
     //@Getter @Setter
@@ -35,16 +41,4 @@ public class TopAttractions extends Auditable{
 
     @Getter @Setter @URL
     private String picURL;
-
-    /*public TopAttractions(String name, String typeOfAttraction, Double latitude, Double longitude, int timeToCover, City city) {
-        this.name = name;
-        this.typeOfAttraction=typeOfAttraction;
-        this.latitude=latitude;
-        this.longitude=longitude;
-        this.timeToCover=timeToCover;
-        this.city=city;
-    }
-
-    public TopAttractions() {
-    }*/
 }
